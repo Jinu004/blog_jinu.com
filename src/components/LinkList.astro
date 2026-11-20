@@ -1,0 +1,31 @@
+---
+import { getLinks } from '../lib/links';
+
+export interface Props {
+  label?: string;
+  /** Add an RSS link at the end. */
+  includeRss?: boolean;
+}
+
+const { label = 'Links', includeRss = false } = Astro.props;
+const links = getLinks();
+---
+
+{
+  (links.length > 0 || includeRss) && (
+    <ul class="link-list" aria-label={label}>
+      {links.map((link) => (
+        <li>
+          <a href={link.href} rel={link.external ? 'noopener' : undefined}>
+            {link.label}
+          </a>
+        </li>
+      ))}
+      {includeRss && (
+        <li>
+          <a href="/rss.xml">RSS</a>
+        </li>
+      )}
+    </ul>
+  )
+}

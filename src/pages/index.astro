@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Avatar from '../components/Avatar.astro';
+import PostList from '../components/PostList.astro';
+import EmptyPosts from '../components/EmptyPosts.astro';
+import LinkList from '../components/LinkList.astro';
+import { config } from '../config';
+import { getPosts } from '../lib/posts';
+import { getLinks, getReceptionAILink } from '../lib/links';
+import { categoryHref } from '../lib/categories';
+
+const posts = await getPosts();
+const latest = posts.slice(0, 3);
+const receptionai = getReceptionAILink();
+const hasLinks = getLinks().length > 0;
+
+// Opens /blog with the "Clinic diaries" filter selected.
+const diaryHref = categoryHref('clinic-diaries');
+---
+
+<BaseLayout title={config.siteName} description={config.tagline}>
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-photo">
+      <Avatar class="avatar-hero" size={600} loading="eager" />
+    </div>
+    <div class="hero-text">
+      <p class="eyebrow">{config.location}</p>
+      <h1 id="hero-heading">{config.siteName}</h1>
+      <p class="tagline">{config.tagline}</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/blog">Read the blog</a>
+        {
+          receptionai && (
+            <a class="btn btn-secondary" href={receptionai.href} rel="noopener">
+              See ReceptionAI
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section feature-grid" aria-label="What I do">
+    <div class="card feature-card">
+      <p class="eyebrow">Now</p>
+      <h2>What I'm building</h2>
+      <p>
+        ReceptionAI is a WhatsApp assistant for small private clinics. It answers patient messages
+        and books appointments, so the front desk doesn't have to reply to every message by hand.
+      </p>
+      {
+        receptionai && (
+          <a class="btn btn-secondary" href={receptionai.href} rel="noopener">
+            Visit {receptionai.display}
+          </a>
+        )
+      }
+    </div>
+
+    <div class="strip">
+      <p class="eyebrow">Field notes</p>
+      <h2>Clinic visit diaries</h2>
+      <p>{config.intro}</p>
+      <a class="btn btn-primary" href={diaryHref}>Read the diaries</a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="latest-heading">
+    <div class="section-head">
+      <h2 id="latest-heading">Latest writing</h2>
+      {latest.length > 0 && <a href="/blog">All posts</a>}
+    </div>
+    {latest.length > 0 ? <PostList posts={latest} /> : <EmptyPosts />}
+  </section>
+
+  {
+    hasLinks && (
+      <section class="section" aria-label="Links">
+        <LinkList label="Links" />
+      </section>
+    )
+  }
+</BaseLayout>

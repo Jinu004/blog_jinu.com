@@ -1,0 +1,35 @@
+---
+import { config } from '../config';
+import { getInitials, getPhoto } from '../lib/photo';
+
+export interface Props {
+  class?: string;
+  /** Intrinsic width/height written on the <img> (prevents layout shift). */
+  size?: number;
+  /** Use "eager" for the photo at the top of the page. */
+  loading?: 'eager' | 'lazy';
+}
+
+const { class: className = '', size = 320, loading = 'lazy' } = Astro.props;
+const photo = getPhoto();
+---
+
+<div class:list={['avatar', className]}>
+  {
+    photo ? (
+      <img
+        src={photo}
+        alt={config.author}
+        width={size}
+        height={size}
+        loading={loading}
+        decoding="async"
+        fetchpriority={loading === 'eager' ? 'high' : undefined}
+      />
+    ) : (
+      <div class="monogram" aria-hidden="true">
+        <span>{getInitials()}</span>
+      </div>
+    )
+  }
+</div>

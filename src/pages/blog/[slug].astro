@@ -1,0 +1,232 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Avatar from '../../components/Avatar.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import WhatsAppCta from '../../components/WhatsAppCta.astro';
+import { config } from '../../config';
+import { getPosts, postPath, readingTime, type Post } from '../../lib/posts';
+import { categoryHref, categoryLabel } from '../../lib/categories';
+import { tagPath } from '../../lib/tags';
+
+export async function getStaticPaths() {
+  // getPosts() leaves drafts out of production builds, so no page is generated for them.
+  // A slug with no post falls through to the 404 page.
+  const posts = await getPosts();
+  return posts.map((post) => {
+    const others = posts.filter((p) => p.id !== post.id);
+    const related = [
+      ...others.filter((p) => p.data.category === post.data.category),
+      ...others.filter((p) => p.data.category !== post.data.category),
+    ].slice(0, 3);
+    return { params: { slug: post.id }, props: { post, related } };
+  });
+}
+
+interface Props {
+  post: Post;
+  related: Post[];
+}
+
+const { post, related } = Astro.props;
+const { Content } = await render(post);
+const { title, description, date, updated, tags, draft, category, cover } = post.data;
+
+const site = Astro.site ?? new URL(config.siteUrl);
+const url = new URL(postPath(post), site).href;
+const image = cover?.src ?? config.ogImage;
+const whatsappShare = `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  datePublished: date.toISOString(),
+  dateModified: (updated ?? date).toISOString(),
+  inLanguage: config.lang,
+  url,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  image: new URL(image, site).href,
+  articleSection: categoryLabel(category),
+  ...(tags.length > 0 ? { keywords: tags.join(', ') } : {}),
+  author: {
+    '@type': 'Person',
+    name: config.author,
+    url: new URL('/about', site).href,
+  },
+  publisher: {
+    '@type': 'Person',
+    name: config.author,
+  },
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={image}
+  type="article"
+  publishedTime={date}
+  modifiedTime={updated}
+  noindex={draft}
+  jsonLd={jsonLd}
+>
+  <div class="progress" aria-hidden="true"><span data-progress></span></div>
+
+  <article class="post" data-article>
+    <header class="reading post-header fade-up">
+      <a class="back-link" href="/blog"><span aria-hidden="true">←</span> All posts</a>
+      <p class="post-chip">
+        <a class="pill" href={categoryHref(category)}>{categoryLabel(category)}</a>
+      </p>
+      <h1>
+        {title}
+        {draft && <span class="badge">Draft (only visible in dev)</span>}
+      </h1>
+      <p class="post-meta">
+        <FormattedDate date={date} />
+        <span aria-hidden="true">·</span>
+        <span>{readingTime(post.body)}</span>
+        {
+          updated && (
+            <span>
+              (updated <FormattedDate date={updated} />)
+            </span>
+          )
+        }
+      </p>
+    </header>
+
+    {
+      cover && (
+        <figure class="reading post-cover">
+          <img src={cover.src} alt={cover.alt} width="1200" height="675" decoding="async" />
+        </figure>
+      )
+    }
+
+    <div class="reading prose post-body">
+      <Content />
+    </div>
+
+    <footer class="reading post-end">
+      {
+        tags.length > 0 && (
+          <ul class="pill-list" aria-label="Tags">
+            {tags.map((tag) => (
+              <li>
+                <a class="pill" href={tagPath(tag)}>
+                  {tag}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <div class="share-row" aria-label="Share this post" role="group">
+        <span class="share-label">Share</span>
+        <button type="button" class="btn btn-secondary" data-copy-link data-url={url}>
+          Copy link
+        </button>
+        <a class="btn btn-secondary" href={whatsappShare} target="_blank" rel="noopener">
+          Share on WhatsApp
+        </a>
+        <span class="share-status" data-copy-status aria-live="polite"></span>
+      </div>
+
+      <aside class="card author-box" aria-label="About the author">
+        <Avatar class="avatar-sm" size={160} />
+        <div class="author-box-body">
+          <p class="author-box-line">{config.authorBlurb}</p>
+          <a href="/about">More about me</a>
+        </div>
+      </aside>
+    </footer>
+  </article>
+
+  {
+    related.length > 0 && (
+      <section class="section" aria-labelledby="more-heading">
+        <div class="section-head">
+          <h2 id="more-heading">More posts</h2>
+          <a href="/blog">All posts</a>
+        </div>
+        <ul class="blog-grid">
+          {related.map((p) => (
+            <li>
+              <BlogCard post={p} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <div class="section">
+    <WhatsAppCta />
+  </div>
+
+  <!-- Thin reading progress bar. Not shown when the visitor prefers reduced motion. -->
+  <script is:inline>
+    (function () {
+      try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var bar = document.querySelector('[data-progress]');
+        var article = document.querySelector('[data-article]');
+        if (!bar || !article) return;
+        var queued = false;
+        var update = function () {
+          queued = false;
+          var rect = article.getBoundingClientRect();
+          var total = rect.height - window.innerHeight;
+          var p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 1;
+          bar.style.transform = 'scaleX(' + p + ')';
+        };
+        var onScroll = function () {
+          if (!queued) {
+            queued = true;
+            window.requestAnimationFrame(update);
+          }
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        update();
+      } catch (e) {}
+    })();
+  </script>
+</BaseLayout>
+
+<script>
+  // "Copy link" button. Falls back to a hidden textarea if the Clipboard API is blocked.
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const url = btn.dataset.url || window.location.href;
+      const status = document.querySelector<HTMLElement>('[data-copy-status]');
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(url);
+        copied = true;
+      } catch {
+        try {
+          const field = document.createElement('textarea');
+          field.value = url;
+          field.setAttribute('readonly', '');
+          field.style.position = 'fixed';
+          field.style.opacity = '0';
+          document.body.appendChild(field);
+          field.select();
+          copied = document.execCommand('copy');
+          field.remove();
+        } catch {
+          copied = false;
+        }
+      }
+      if (status) {
+        status.textContent = copied ? 'Link copied.' : 'Could not copy. Copy the address from the address bar.';
+      }
+    });
+  });
+</script>

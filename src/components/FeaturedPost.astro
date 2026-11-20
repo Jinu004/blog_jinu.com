@@ -1,0 +1,38 @@
+---
+import FormattedDate from './FormattedDate.astro';
+import PostCover from './PostCover.astro';
+import { postPath, readingTime, type Post } from '../lib/posts';
+import { categoryLabel } from '../lib/categories';
+
+export interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const href = postPath(post);
+---
+
+<article class="featured fade-up">
+  <a class="featured-cover" href={href} tabindex="-1" aria-hidden="true">
+    <PostCover post={post} size="featured" loading="eager" />
+  </a>
+  <div class="featured-body">
+    <p class="featured-label">
+      <span class="eyebrow">Latest post</span>
+      <span class="pill">{categoryLabel(post.data.category)}</span>
+    </p>
+    <h2 class="featured-title">
+      <a href={href}>{post.data.title}</a>
+      {post.data.draft && <span class="badge">Draft</span>}
+    </h2>
+    <p class="featured-summary clamp-2">{post.data.description}</p>
+    <p class="blog-card-meta">
+      <FormattedDate date={post.data.date} />
+      <span aria-hidden="true">·</span>
+      <span>{readingTime(post.body)}</span>
+    </p>
+    <a class="read-link" href={href} aria-label={`Read post: ${post.data.title}`}>
+      Read post <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</article>

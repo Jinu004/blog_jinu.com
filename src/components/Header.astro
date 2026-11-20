@@ -1,0 +1,41 @@
+---
+import { config } from '../config';
+import { getInitials } from '../lib/photo';
+
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+];
+
+const current = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/$/, '') || '/';
+const isCurrent = (href: string) =>
+  href === '/'
+    ? current === '/'
+    : current === href ||
+      current.startsWith(`${href}/`) ||
+      (href === '/blog' && current.startsWith('/tags/'));
+---
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="site-name" href="/">
+      <span class="site-name-mark" aria-hidden="true">{getInitials()}</span>
+      {config.siteName}
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav-list">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

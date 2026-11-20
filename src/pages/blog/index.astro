@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import FeaturedPost from '../../components/FeaturedPost.astro';
+import EmptyPosts from '../../components/EmptyPosts.astro';
+import WhatsAppCta from '../../components/WhatsAppCta.astro';
+import { getPosts } from '../../lib/posts';
+import { CATEGORIES, CATEGORY_KEYS, categoryLabel } from '../../lib/categories';
+
+// Published posts only in production; drafts are added in `npm run dev`. Newest first.
+const posts = await getPosts();
+
+// Featured card: a post with `featured: true`, otherwise the newest non-draft post.
+// (In `npm run dev`, when every post is a draft, it falls back to the newest post.)
+const featured =
+  posts.find((p) => p.data.featured) ?? posts.find((p) => !p.data.draft) ?? posts[0];
+
+const searchText = (p: (typeof posts)[number]) =>
+  `${p.data.title} ${p.data.description} ${categoryLabel(p.data.category)}`.toLowerCase();
+
+const subtitle = 'What I learn from visiting small clinics in Kerala, written as I go.';
+---
+
+<BaseLayout title="Notes from the clinics" description={subtitle}>
+  <header class="blog-head fade-up">
+    <p class="eyebrow">Blog</p>
+    <h1>Notes from the clinics</h1>
+    <p class="blog-subtitle">{subtitle}</p>
+  </header>
+
+  {
+    !featured ? (
+      <EmptyPosts headingLevel="h2" />
+    ) : (
+      <div class="blog-index" data-blog>
+        <div class="blog-controls">
+          <form class="search" role="search" data-search-form>
+            <input
+              type="search"
+              name="q"
+              placeholder="Search posts"
+              aria-label="Search posts by title or summary"
+              autocomplete="off"
+              data-search-input
+            />
+          </form>
+          <div class="chip-row" role="group" aria-label="Filter by category">
+            <button type="button" class="chip" data-filter="all" aria-pressed="true">
+              All
+            </button>
+            {CATEGORY_KEYS.map((key) => (
+              <button type="button" class="chip" data-filter={key} aria-pressed="false">
+                {CATEGORIES[key].label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p class="results-count" data-count aria-live="polite"></p>
+
+        <section class="featured-wrap" aria-label="Latest post" data-featured>
+          <FeaturedPost post={featured} />
+        </section>
+
+        <ul class="blog-grid" aria-label="Posts">
+          {posts.map((post) => (
+            <li
+              data-item
+              data-category={post.data.category}
+              data-search={searchText(post)}
+              data-featured={post.id === featured.id ? 'true' : undefined}
+              hidden={post.id === featured.id}
+            >
+              <BlogCard post={post} headingLevel="h2" />
+            </li>
+          ))}
+        </ul>
+
+        <div class="card empty-card" data-empty hidden>
+          <h2>No posts match. Try another word.</h2>
+          <button type="button" class="btn btn-secondary" data-clear>
+            Clear filters
+          </button>
+        </div>
+
+        <div class="load-more">
+          <button type="button" class="btn btn-secondary" data-load-more hidden>
+            Load more
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  <div class="section">
+    <WhatsAppCta />
+  </div>
+</BaseLayout>
+
+<script>
+  // Instant filtering, search and "Load more". Without JavaScript every post is listed.
+  const root = document.querySelector<HTMLElement>('[data-blog]');
+
+  if (root) {
+    const PAGE_SIZE = 9;
+    const input = root.querySelector<HTMLInputElement>('[data-search-input]');
+    const form = root.querySelector<HTMLFormElement>('[data-search-form]');
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-item]'));
+    const featured = root.querySelector<HTMLElement>('[data-featured]:not([data-item])');
+    const empty = root.querySelector<HTMLElement>('[data-empty]');
+    const count = root.querySelector<HTMLElement>('[data-count]');
+    const more = root.querySelector<HTMLButtonElement>('[data-load-more]');
+    const clear = root.querySelector<HTMLButtonElement>('[data-clear]');
+
+    const valid = new Set(chips.map((c) => c.dataset.filter ?? 'all'));
+    let category = 'all';
+    let limit = PAGE_SIZE;
+
+    const fromUrl = new URLSearchParams(window.location.search).get('category');
+    if (fromUrl && valid.has(fromUrl)) category = fromUrl;
+
+    const render = (focusIndex?: number) => {
+      const words = (input?.value ?? '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const filtering = category !== 'all' || words.length > 0;
+
+      const matches = items.filter((item) => {
+        // With no filter, the newest post is shown as the featured card instead.
+        if (!filtering && item.dataset.featured === 'true') return false;
+        if (category !== 'all' && item.dataset.category !== category) return false;
+        const text = item.dataset.search ?? '';
+        return words.every((w) => text.includes(w));
+      });
+
+      items.forEach((item) => (item.hidden = true));
+      matches.forEach((item, i) => (item.hidden = i >= limit));
+
+      if (featured) featured.hidden = filtering;
+      if (empty) empty.hidden = !(filtering && matches.length === 0);
+      if (more) more.hidden = matches.length <= limit;
+      if (count) {
+        count.textContent = !filtering
+          ? ''
+          : matches.length === 0
+            ? 'No posts match.'
+            : `${matches.length} ${matches.length === 1 ? 'post' : 'posts'} found.`;
+      }
+      chips.forEach((chip) =>
+        chip.setAttribute('aria-pressed', String((chip.dataset.filter ?? 'all') === category)),
+      );
+
+      if (focusIndex !== undefined) {
+        matches[focusIndex]?.querySelector<HTMLAnchorElement>('.blog-card-title a')?.focus();
+      }
+    };
+
+    const setCategory = (value: string) => {
+      category = valid.has(value) ? value : 'all';
+      limit = PAGE_SIZE;
+      try {
+        const url = new URL(window.location.href);
+        if (category === 'all') url.searchParams.delete('category');
+        else url.searchParams.set('category', category);
+        window.history.replaceState(null, '', url);
+      } catch {
+        // Ignore: the filter still works without updating the address bar.
+      }
+      render();
+    };
+
+    chips.forEach((chip) => chip.addEventListener('click', () => setCategory(chip.dataset.filter ?? 'all')));
+    input?.addEventListener('input', () => {
+      limit = PAGE_SIZE;
+      render();
+    });
+    form?.addEventListener('submit', (event) => event.preventDefault());
+    more?.addEventListener('click', () => {
+      const firstNew = limit;
+      limit += PAGE_SIZE;
+      render(firstNew);
+    });
+    clear?.addEventListener('click', () => {
+      if (input) input.value = '';
+      setCategory('all');
+      input?.focus();
+    });
+
+    render();
+  }
+</script>

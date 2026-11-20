@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Avatar from '../components/Avatar.astro';
+import { config } from '../config';
+import { getReceptionAILink } from '../lib/links';
+
+const receptionai = getReceptionAILink();
+---
+
+<BaseLayout title="About" description={config.shortBio}>
+  <h1>About</h1>
+
+  <div class="about">
+    <aside class="about-side" aria-label="Quick facts">
+      <Avatar class="avatar-about" size={400} loading="eager" />
+      <div class="card facts">
+        <dl>
+          <dt>Based in</dt>
+          <dd>{config.location}</dd>
+          <dt>Studying</dt>
+          <dd>Engineering student</dd>
+          <dt>Building</dt>
+          <dd>{receptionai ? <a href={receptionai.href} rel="noopener">ReceptionAI</a> : 'ReceptionAI'}</dd>
+        </dl>
+      </div>
+    </aside>
+
+    <article class="about-story prose">
+      <p>
+        I'm {config.author}, an engineering student and solo founder based in {config.location}.
+      </p>
+
+      <p>
+        I'm building ReceptionAI, a WhatsApp assistant that answers patient messages and books
+        appointments for small private clinics.
+      </p>
+
+      <p>
+        I don't think you can build something useful for clinics from a desk, so I go to them. I visit
+        clinics in person to learn how they handle bookings today: who picks up the phone, how patients
+        get in touch, and what happens when the front desk is busy.
+      </p>
+
+      <p>
+        This blog is where I write down what I learn from those visits. It is early days. I don't have
+        customers or results to report, and I won't pretend otherwise. What you will find here are plain,
+        honest notes from someone learning as I go.
+      </p>
+
+      <h2>What I am working on</h2>
+
+      <p>
+        ReceptionAI answers patient messages on WhatsApp and books appointments for small private
+        clinics, so the front desk doesn't have to reply to every message by hand.
+        {
+          receptionai && (
+            <>
+              {' '}You can read more at <a href={receptionai.href}>{receptionai.display}</a>.
+            </>
+          )
+        }
+      </p>
+    </article>
+  </div>
+</BaseLayout>

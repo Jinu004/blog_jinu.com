@@ -1,0 +1,35 @@
+---
+// "Run a small clinic?" block. Links come from config.links; a missing link hides its
+// button, and the whole block is hidden if both are empty.
+import { getReceptionAILink, getWhatsAppLink } from '../lib/links';
+
+const whatsapp = getWhatsAppLink();
+const receptionai = getReceptionAILink();
+---
+
+{
+  (whatsapp || receptionai) && (
+    <section class="cta-block" aria-labelledby="cta-heading">
+      <h2 id="cta-heading">Run a small clinic? Message me on WhatsApp.</h2>
+      <p>
+        Tell me how bookings work at your clinic, ask a question, or tell me what I should write
+        about next. Happy to just talk.
+      </p>
+      <div class="btn-row">
+        {whatsapp && (
+          <a class="btn btn-primary" href={whatsapp.href} rel="noopener">
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.5 20.5l1.3-4A8.5 8.5 0 1 1 8 19.3z" />
+            </svg>
+            Message me on WhatsApp
+          </a>
+        )}
+        {receptionai && (
+          <a class="btn btn-secondary" href={receptionai.href} rel="noopener">
+            See ReceptionAI
+          </a>
+        )}
+      </div>
+    </section>
+  )
+}

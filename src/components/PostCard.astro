@@ -1,0 +1,33 @@
+---
+import FormattedDate from './FormattedDate.astro';
+import { postPath, readingTime, type Post } from '../lib/posts';
+
+export interface Props {
+  post: Post;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const firstTag = post.data.tags[0];
+---
+
+<article class="card card-hover post-card">
+  <Heading class="post-card-title">
+    <a href={postPath(post)}>{post.data.title}</a>
+    {post.data.draft && <span class="badge">Draft</span>}
+  </Heading>
+  <p class="post-card-meta">
+    <FormattedDate date={post.data.date} />
+    <span aria-hidden="true">·</span>
+    <span>{readingTime(post.body)}</span>
+  </p>
+  <p class="post-card-desc">{post.data.description}</p>
+  {
+    firstTag && (
+      <div class="post-card-foot">
+        <span class="pill">{firstTag}</span>
+      </div>
+    )
+  }
+</article>

@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { config } from '../config';
+import { getContactMethods } from '../lib/links';
+
+const methods = getContactMethods();
+---
+
+<BaseLayout title="Contact" description={`How to get in touch with ${config.author}.`}>
+  <header class="page-intro">
+    <h1>Contact</h1>
+  </header>
+  {
+    methods.length > 0 ? (
+      <>
+        <p>The best ways to reach me:</p>
+        <ul class="contact-grid">
+          {methods.map((m) => (
+            <li class="card">
+              <span class="label">{m.label}</span>
+              <a href={m.href} rel={m.external ? 'noopener' : undefined}>
+                {m.display}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : (
+      <div class="card">
+        <p>You can find me on the links in the footer below.</p>
+      </div>
+    )
+  }
+</BaseLayout>

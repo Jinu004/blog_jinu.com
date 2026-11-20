@@ -1,0 +1,13 @@
+---
+import { config } from '../config';
+import LinkList from './LinkList.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <LinkList label="Elsewhere" includeRss />
+    <p class="muted small">© {year} {config.author}</p>
+  </div>
+</footer>

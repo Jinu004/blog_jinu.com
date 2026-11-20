@@ -1,0 +1,56 @@
+---
+// Cover for a post: the image from frontmatter `cover` if there is one, otherwise a soft
+// green gradient with a simple icon for the post's category (drawn in code, no downloads).
+import type { Post } from '../lib/posts';
+
+export interface Props {
+  post: Post;
+  size?: 'card' | 'featured';
+  loading?: 'eager' | 'lazy';
+}
+
+const { post, size = 'card', loading = 'lazy' } = Astro.props;
+const { cover, category } = post.data;
+const iconSize = size === 'featured' ? 88 : 56;
+---
+
+<div class:list={['cover', `cover-${category}`, `cover-${size}`]}>
+  {
+    cover ? (
+      <img src={cover.src} alt={cover.alt} width="1200" height="675" loading={loading} decoding="async" />
+    ) : (
+      <svg
+        class="cover-icon"
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 48 48"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        {category === 'clinic-diaries' && (
+          <>
+            <rect x="11" y="6" width="26" height="36" rx="3" />
+            <path d="M17 6v36M22 16h10M22 23h10M22 30h6" />
+          </>
+        )}
+        {category === 'clinic-tips' && (
+          <>
+            <path d="M24 6a12 12 0 0 0-7 21.8c1.3 1 2 2.4 2 4V34h10v-2.2c0-1.6.7-3 2-4A12 12 0 0 0 24 6z" />
+            <path d="M19 39h10M21 43h6" />
+          </>
+        )}
+        {category === 'building-receptionai' && (
+          <>
+            <path d="M8 12a4 4 0 0 1 4-4h24a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H20l-8 7v-7a4 4 0 0 1-4-4z" />
+            <path d="M16 18h16M16 24h10" />
+          </>
+        )}
+      </svg>
+    )
+  }
+</div>

@@ -1,0 +1,26 @@
+---
+import BaseHead, { type Props as HeadProps } from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { config } from '../config';
+import '../styles/global.css';
+
+export type Props = HeadProps;
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang={config.lang}>
+  <head>
+    <BaseHead {...props} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" class="wrap" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

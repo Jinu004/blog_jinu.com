@@ -1,0 +1,35 @@
+---
+import FormattedDate from './FormattedDate.astro';
+import PostCover from './PostCover.astro';
+import { postPath, readingTime, type Post } from '../lib/posts';
+import { categoryLabel } from '../lib/categories';
+
+export interface Props {
+  post: Post;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const href = postPath(post);
+---
+
+<article class="blog-card fade-up">
+  <!-- Duplicate link for a bigger click area; hidden from keyboard and screen readers. -->
+  <a class="blog-card-cover" href={href} tabindex="-1" aria-hidden="true">
+    <PostCover post={post} />
+  </a>
+  <div class="blog-card-body">
+    <p class="blog-card-chip"><span class="pill">{categoryLabel(post.data.category)}</span></p>
+    <Heading class="blog-card-title">
+      <a href={href}>{post.data.title}</a>
+      {post.data.draft && <span class="badge">Draft</span>}
+    </Heading>
+    <p class="blog-card-summary clamp-2">{post.data.description}</p>
+    <p class="blog-card-meta">
+      <FormattedDate date={post.data.date} />
+      <span aria-hidden="true">·</span>
+      <span>{readingTime(post.body)}</span>
+    </p>
+  </div>
+</article>

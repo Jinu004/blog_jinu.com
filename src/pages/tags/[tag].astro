@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { config } from '../../config';
+import { getPosts, type Post } from '../../lib/posts';
+import { groupByTag } from '../../lib/tags';
+
+export async function getStaticPaths() {
+  // getPosts() leaves drafts out of production builds, so a tag that only appears on
+  // drafts gets no page (and so is not in the sitemap).
+  const posts = await getPosts();
+  return [...groupByTag(posts)].map(([slug, { label, posts: tagged }]) => ({
+    params: { tag: slug },
+    props: { label, posts: tagged },
+  }));
+}
+
+interface Props {
+  label: string;
+  posts: Post[];
+}
+
+const { label, posts } = Astro.props;
+const count = posts.length === 1 ? '1 post' : `${posts.length} posts`;
+---
+
+<BaseLayout
+  title={`Posts tagged “${label}”`}
+  description={`Posts by ${config.author} tagged “${label}”.`}
+>
+  <header class="page-intro">
+    <p class="eyebrow">Tag</p>
+    <h1>{label}</h1>
+    <p>{count}. <a href="/blog">See all posts</a>.</p>
+  </header>
+  <PostList posts={posts} headingLevel="h2" />
+</BaseLayout>
