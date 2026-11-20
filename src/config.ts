@@ -64,7 +64,7 @@ export const config: SiteConfig = {
   // Profile photo. Put a square image (at least 640x640) in the public/ folder,
   // e.g. public/jinu.jpg, and set this to '/jinu.jpg'.
   // Leave it as '' (or if the file is missing) and a "JJ" monogram is shown instead.
-  photo: '',
+  photo: '/jinu.jpeg',
 
   links: {
     receptionai: 'https://receptionai.in',
