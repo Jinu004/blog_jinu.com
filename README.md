@@ -28,7 +28,7 @@ This folder is separate from the ReceptionAI repo and should live in its own Git
 | `src/components/PostCover.astro` | The post's cover image, or a green gradient with a category icon drawn in code. |
 | `src/components/WhatsAppCta.astro` | "Run a small clinic? Message me on WhatsApp." block (uses `links.whatsapp` and `links.receptionai`). |
 | `src/lib/categories.ts` | The three blog categories and their labels (the filter chips on `/blog`). |
-| `src/lib/photo.ts` | Checks that the photo in the config exists in `public/`; otherwise the monogram is used. |
+| `src/lib/photo.ts` | Checks that the photo in the config (and `public/favicon.png`) exist in `public/`; otherwise the monogram (and `favicon.svg`) is used. |
 | `src/lib/tags.ts` | Tag slugs and grouping, and the "clinic visits" diary tag. |
 | `src/pages/tags/[tag].astro` | One page per tag (`/tags/<tag>`), only for tags used by published posts. |
 | `src/pages/index.astro` | Home page (`/`). |
@@ -40,7 +40,7 @@ This folder is separate from the ReceptionAI repo and should live in its own Git
 | `src/pages/rss.xml.ts` | RSS feed at `/rss.xml` (published posts only). |
 | `src/pages/robots.txt.ts` | Generates `/robots.txt` (allow all, points to the sitemap) from the domain in the config. |
 | `src/styles/global.css` | The only stylesheet. White theme, one green accent, normal-flow layout. |
-| `public/favicon.svg` | "JJ" monogram icon. |
+| `public/favicon.svg` | "JJ" monogram icon, used when `public/favicon.png` does not exist. |
 | `public/og-default.svg` | Default image used when a page is shared on social media. |
 | `astro.config.mjs` | Astro settings: site URL, sitemap, URL style, code highlighting, image alt-text check. |
 | `package.json` | Dependencies and the `dev`, `build` and `preview` scripts. |
@@ -66,7 +66,12 @@ Open `src/config.ts` and edit the values.
 2. Put it in the `public/` folder, for example `D:\jinujoy-blog\public\jinu.jpg`.
 3. In `src/config.ts` set `photo: '/jinu.jpg'`.
 
-It is used on the home page, the About page and the "Written by" card under each post. While `photo` is empty, or if the file is not found, a green "JJ" monogram is shown instead and the build still works.
+It is used on the home page, the About page, the small round logo in the header and the "Written by" card under each post. While `photo` is empty, or if the file is not found, a green "JJ" monogram is shown instead and the build still works.
+
+## Favicon and header photo
+
+- **Tab icon:** put a square 128 × 128 PNG at `public/favicon.png` (keep it under 20 KB). When that file exists at build time, it is used as the browser tab icon and the Apple touch icon. Without it, `public/favicon.svg` (the "JJ" monogram) is used.
+- **Header logo:** the small round logo next to the site name uses `photo` from `src/config.ts` (see "Add your photo" above), with the "JJ" monogram as the fallback.
 
 ## Categories, tags and the clinic visit diaries
 

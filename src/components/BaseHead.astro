@@ -1,5 +1,6 @@
 ---
 import { config } from '../config';
+import { getFaviconPng } from '../lib/photo';
 
 export interface Props {
   title: string;
@@ -37,6 +38,9 @@ const fullTitle = title === config.siteName ? title : `${title} | ${config.siteN
 
 // Escape "<" so the JSON can never close the script tag early.
 const jsonLdText = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : '';
+
+// Tab icon: public/favicon.png when it exists at build time, otherwise favicon.svg.
+const faviconPng = getFaviconPng();
 ---
 
 <meta charset="utf-8" />
@@ -51,7 +55,16 @@ const jsonLdText = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : ''
 <meta name="author" content={config.author} />
 <meta name="generator" content={Astro.generator} />
 
-<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+{
+  faviconPng ? (
+    <>
+      <link rel="icon" type="image/png" href={faviconPng} />
+      <link rel="apple-touch-icon" href={faviconPng} />
+    </>
+  ) : (
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  )
+}
 <link rel="alternate" type="application/rss+xml" title={config.siteName} href={new URL('rss.xml', site).href} />
 <link rel="sitemap" href="/sitemap-index.xml" />
 

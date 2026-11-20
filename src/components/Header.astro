@@ -1,6 +1,9 @@
 ---
 import { config } from '../config';
-import { getInitials } from '../lib/photo';
+import { getInitials, getPhoto } from '../lib/photo';
+
+// Small round logo: the photo when it exists in public/, otherwise the "JJ" monogram.
+const photo = getPhoto();
 
 const nav = [
   { href: '/', label: 'Home' },
@@ -21,7 +24,15 @@ const isCurrent = (href: string) =>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="site-name" href="/">
-      <span class="site-name-mark" aria-hidden="true">{getInitials()}</span>
+      {
+        photo ? (
+          <span class="site-name-mark site-name-mark-photo" aria-hidden="true">
+            <img src={photo} alt="" width="32" height="32" decoding="async" />
+          </span>
+        ) : (
+          <span class="site-name-mark" aria-hidden="true">{getInitials()}</span>
+        )
+      }
       {config.siteName}
     </a>
     <nav aria-label="Main">
