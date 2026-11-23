@@ -103,6 +103,8 @@ Put the file in `public/images/`. Use a 16:9 image (for example 1200 × 675). Wi
 
 The site is white only (no dark mode): white background, near-black text, light grey borders and one deep green accent (`#0d6b57`). Colours are set at the top of `src/styles/global.css`. No cookies or browser storage are used.
 
+The layout is inspired by the [Magic Portfolio](https://github.com/once-ui-system/magic-portfolio) template by Once UI: dotted backdrop, centred pill menu, centred hero and soft rounded cards. No code, fonts or files were copied from it; everything here is plain CSS written for this site.
+
 ## Add a post
 
 1. Create a file in `src/content/blog/`, for example `03-what-a-front-desk-told-me.md`. The address becomes `/blog/what-a-front-desk-told-me` (a leading number is dropped).

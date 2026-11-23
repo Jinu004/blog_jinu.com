@@ -7,7 +7,11 @@ const year = new Date().getFullYear();
 
 <footer class="site-footer">
   <div class="wrap footer-inner">
+    <p class="footer-copy">
+      <span class="muted">© {year} /</span>
+      {config.author}
+      <span class="muted">/ {config.location}</span>
+    </p>
     <LinkList label="Elsewhere" includeRss />
-    <p class="muted small">© {year} {config.author}</p>
   </div>
 </footer>

@@ -8,9 +8,11 @@ export interface Props {
   size?: number;
   /** Use "eager" for the photo at the top of the page. */
   loading?: 'eager' | 'lazy';
+  /** Alt text; pass "" when the name is already written next to the photo. */
+  alt?: string;
 }
 
-const { class: className = '', size = 320, loading = 'lazy' } = Astro.props;
+const { class: className = '', size = 320, loading = 'lazy', alt = config.author } = Astro.props;
 const photo = getPhoto();
 ---
 
@@ -19,7 +21,7 @@ const photo = getPhoto();
     photo ? (
       <img
         src={photo}
-        alt={config.author}
+        alt={alt}
         width={size}
         height={size}
         loading={loading}

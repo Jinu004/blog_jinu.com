@@ -10,7 +10,7 @@ import { getLinks, getReceptionAILink } from '../lib/links';
 import { categoryHref } from '../lib/categories';
 
 const posts = await getPosts();
-const latest = posts.slice(0, 3);
+const latest = posts.slice(0, 2);
 const receptionai = getReceptionAILink();
 const hasLinks = getLinks().length > 0;
 
@@ -20,27 +20,32 @@ const diaryHref = categoryHref('clinic-diaries');
 
 <BaseLayout title={config.siteName} description={config.tagline}>
   <section class="hero" aria-labelledby="hero-heading">
-    <div class="hero-photo">
-      <Avatar class="avatar-hero" size={600} loading="eager" />
-    </div>
-    <div class="hero-text">
-      <p class="eyebrow">{config.location}</p>
-      <h1 id="hero-heading">{config.siteName}</h1>
-      <p class="tagline">{config.tagline}</p>
-      <div class="btn-row">
-        <a class="btn btn-primary" href="/blog">Read the blog</a>
-        {
-          receptionai && (
-            <a class="btn btn-secondary" href={receptionai.href} rel="noopener">
-              See ReceptionAI
-            </a>
-          )
-        }
-      </div>
+    {
+      receptionai && (
+        <a class="hero-badge reveal" href={receptionai.href} rel="noopener">
+          <span class="hero-badge-dot" aria-hidden="true" />
+          Building ReceptionAI
+          <span aria-hidden="true">→</span>
+        </a>
+      )
+    }
+    <h1 id="hero-heading" class="hero-title reveal" style="--delay: 80ms">
+      {config.tagline}
+    </h1>
+    <p class="hero-sub reveal" style="--delay: 180ms">
+      I'm {config.author}, an engineering student and solo founder in {config.location}.
+    </p>
+    <div class="hero-actions reveal" style="--delay: 280ms">
+      <a class="btn btn-secondary btn-avatar" href="/about">
+        <Avatar class="avatar-xs" size={64} loading="eager" alt="" />
+        About {config.author}
+        <span aria-hidden="true">→</span>
+      </a>
+      <a class="btn btn-primary" href="/blog">Read the blog</a>
     </div>
   </section>
 
-  <section class="section feature-grid" aria-label="What I do">
+  <section class="section feature-grid reveal" style="--delay: 380ms" aria-label="What I do">
     <div class="card feature-card">
       <p class="eyebrow">Now</p>
       <h2>What I'm building</h2>
@@ -65,17 +70,23 @@ const diaryHref = categoryHref('clinic-diaries');
     </div>
   </section>
 
-  <section class="section" aria-labelledby="latest-heading">
-    <div class="section-head">
-      <h2 id="latest-heading">Latest writing</h2>
-      {latest.length > 0 && <a href="/blog">All posts</a>}
+  <section class="section latest" aria-labelledby="latest-heading">
+    <div class="latest-rule" aria-hidden="true"></div>
+    <div class="latest-inner">
+      <div class="latest-head">
+        <h2 id="latest-heading">Latest from the blog</h2>
+        {latest.length > 0 && <a class="read-link" href="/blog">All posts →</a>}
+      </div>
+      <div class="latest-posts">
+        {latest.length > 0 ? <PostList posts={latest} /> : <EmptyPosts />}
+      </div>
     </div>
-    {latest.length > 0 ? <PostList posts={latest} /> : <EmptyPosts />}
+    <div class="latest-rule latest-rule-end" aria-hidden="true"></div>
   </section>
 
   {
     hasLinks && (
-      <section class="section" aria-label="Links">
+      <section class="section links-section" aria-label="Links">
         <LinkList label="Links" />
       </section>
     )
