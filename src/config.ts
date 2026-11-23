@@ -18,6 +18,8 @@ export interface SiteConfig {
   ogLocale: string;
   /** Path (inside public/) of the default social sharing image. */
   ogImage: string;
+  /** Describes the default sharing image (for screen readers in social apps). */
+  ogImageAlt: string;
   /** Path (inside public/) of a profile photo, or "" to show the "JJ" monogram. */
   photo: string;
   links: {
@@ -35,8 +37,8 @@ export interface SiteConfig {
 export const config: SiteConfig = {
   siteName: 'Jinu Joy',
 
-  // TODO: confirm the exact domain before deploying (no trailing slash).
-  // This value is used for canonical URLs, the sitemap, RSS and robots.txt.
+  // The live domain (no trailing slash).
+  // Used for canonical URLs, the sitemap, RSS, robots.txt and structured data.
   siteUrl: 'https://jinujoy.com',
 
   author: 'Jinu Joy',
@@ -56,10 +58,10 @@ export const config: SiteConfig = {
   lang: 'en-IN',
   ogLocale: 'en_IN',
 
-  // Social sharing image. The SVG is a fallback so the build always works.
-  // For proper link previews, put a 1200x630 PNG at public/og-default.png
-  // and change this to '/og-default.png' (see README).
-  ogImage: '/og-default.svg',
+  // Social sharing image: a 1200x630 PNG (WhatsApp, Facebook, LinkedIn and X ignore SVG).
+  // A post with a cover image uses its cover instead.
+  ogImage: '/og-default.png',
+  ogImageAlt: 'Jinu Joy: building WhatsApp booking for small clinics in Kerala.',
 
   // Profile photo. Put a square image (at least 640x640) in the public/ folder,
   // e.g. public/jinu.jpg, and set this to '/jinu.jpg'.

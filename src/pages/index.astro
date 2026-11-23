@@ -8,6 +8,7 @@ import { config } from '../config';
 import { getPosts } from '../lib/posts';
 import { getLinks, getReceptionAILink } from '../lib/links';
 import { categoryHref } from '../lib/categories';
+import { homeSchema } from '../lib/schema';
 
 const posts = await getPosts();
 const latest = posts.slice(0, 2);
@@ -18,7 +19,11 @@ const hasLinks = getLinks().length > 0;
 const diaryHref = categoryHref('clinic-diaries');
 ---
 
-<BaseLayout title={config.siteName} description={config.tagline}>
+<BaseLayout
+  title={`${config.siteName} | WhatsApp booking for small clinics in Kerala`}
+  description={config.tagline}
+  jsonLd={homeSchema()}
+>
   <section class="hero" aria-labelledby="hero-heading">
     {
       receptionai && (

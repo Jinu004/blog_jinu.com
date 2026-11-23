@@ -9,6 +9,7 @@ import { config } from '../../config';
 import { getPosts, postPath, readingTime, type Post } from '../../lib/posts';
 import { categoryHref, categoryLabel } from '../../lib/categories';
 import { tagPath } from '../../lib/tags';
+import { PERSON_ID } from '../../lib/schema';
 
 export async function getStaticPaths() {
   // getPosts() leaves drafts out of production builds, so no page is generated for them.
@@ -53,13 +54,11 @@ const jsonLd = {
   ...(tags.length > 0 ? { keywords: tags.join(', ') } : {}),
   author: {
     '@type': 'Person',
+    '@id': PERSON_ID,
     name: config.author,
     url: new URL('/about', site).href,
   },
-  publisher: {
-    '@type': 'Person',
-    name: config.author,
-  },
+  publisher: { '@id': PERSON_ID },
 };
 ---
 
@@ -67,6 +66,7 @@ const jsonLd = {
   title={title}
   description={description}
   image={image}
+  imageAlt={cover?.alt}
   type="article"
   publishedTime={date}
   modifiedTime={updated}

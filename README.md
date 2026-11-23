@@ -223,8 +223,12 @@ After every push to `main`, Cloudflare Pages rebuilds and publishes the site aut
 
 Link previews on WhatsApp, Facebook, X and LinkedIn need a PNG or JPG; most of them ignore SVG.
 
-1. Make a 1200 × 630 PNG (any image editor, or open `public/og-default.svg` in a browser and take a screenshot at that size).
-2. Save it as `public/og-default.png`.
-3. In `src/config.ts` change `ogImage` to `'/og-default.png'`.
+`public/og-default.png` (1200 × 630: photo, name, tagline and the domain) is the default sharing image, set by `ogImage` in `src/config.ts`, with its description in `ogImageAlt`. A post with a `cover` uses its cover instead. To replace it, save a new 1200 × 630 PNG under the same name.
 
-Until then `public/og-default.svg` stays as the fallback, so the build always passes.
+## SEO
+
+- Every page has a title, description, canonical link, Open Graph and X (Twitter) tags. The 404 page and drafts are marked `noindex`.
+- The home and About pages carry structured data (`src/lib/schema.ts`) describing you as a person: name, photo, Kochi, Kerala, and ReceptionAI. Posts carry `Article` data with you as the author. Only values from `src/config.ts` are used; add `links.instagram` there and it is included automatically.
+- `/sitemap-index.xml` and `/robots.txt` are generated on every build.
+- After deploying, add the site to [Google Search Console](https://search.google.com/search-console) (verify with a DNS record in Cloudflare), submit `https://jinujoy.com/sitemap-index.xml`, and request indexing for the home page.
+- Published posts matter most: drafts are not built, so search engines can only find the home, About, Blog and Contact pages until posts are set to `draft: false`.
