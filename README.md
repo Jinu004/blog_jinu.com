@@ -70,7 +70,8 @@ It is used on the home page, the About page, the small round logo in the header 
 
 ## Favicon and header photo
 
-- **Tab icon:** put a square 128 × 128 PNG at `public/favicon.png` (keep it under 20 KB). When that file exists at build time, it is used as the browser tab icon and the Apple touch icon. Without it, `public/favicon.svg` (the "JJ" monogram) is used.
+- **Tab icon:** `public/favicon.png` (192 × 192, made from the photo) and `public/favicon.ico` (16, 32 and 48 px) are used when they exist at build time, for the browser tab, Google search results and the Apple touch icon. Google wants a square icon whose size is a multiple of 48 px. Without them, `public/favicon.svg` (the "JJ" monogram) is used.
+- **Google search results** pick up a new icon only after Google recrawls the site, which can take days to a few weeks. Requesting indexing of the home page in Google Search Console can speed it up.
 - **Header logo:** the small round logo next to the site name uses `photo` from `src/config.ts` (see "Add your photo" above), with the "JJ" monogram as the fallback.
 
 ## Categories, tags and the clinic visit diaries

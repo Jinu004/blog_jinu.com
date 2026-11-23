@@ -1,6 +1,6 @@
 ---
 import { config } from '../config';
-import { getFaviconPng } from '../lib/photo';
+import { getFaviconPng, publicFile } from '../lib/photo';
 
 export interface Props {
   title: string;
@@ -41,6 +41,8 @@ const jsonLdText = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : ''
 
 // Tab icon: public/favicon.png when it exists at build time, otherwise favicon.svg.
 const faviconPng = getFaviconPng();
+// favicon.ico is what Google and older tools look for first.
+const faviconIco = publicFile('/favicon.ico');
 ---
 
 <meta charset="utf-8" />
@@ -58,7 +60,8 @@ const faviconPng = getFaviconPng();
 {
   faviconPng ? (
     <>
-      <link rel="icon" type="image/png" href={faviconPng} />
+      {faviconIco && <link rel="icon" href={faviconIco} sizes="48x48" />}
+      <link rel="icon" type="image/png" href={faviconPng} sizes="192x192" />
       <link rel="apple-touch-icon" href={faviconPng} />
     </>
   ) : (
